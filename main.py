@@ -46,7 +46,7 @@ if 'lista_vacunas' not in st.session_state:
     }
 
 # --- 4. PANEL DE CONFIGURACIÓN (SIN EDICIÓN DE LOGOS) ---
-with st.expander("⚙️ Gestión de Registros y Vacunas (Contraseña: 1234)"):
+with st.expander("⚙️ Gestión de Registros y Vacunas"):
     pw = st.text_input("Contraseña:", type="password")
     if pw == "1234":
         st.success("Acceso concedido")
