@@ -4,9 +4,10 @@ import plotly.express as px
 from datetime import datetime
 import os
 
-# --- 1. CONFIGURACIÓN ---
+# --- 1. CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="AGVAC", layout="wide")
 
+# Estilos CSS
 st.markdown("""
     <style>
     .main { background-color: #FFFFFF; }
@@ -14,11 +15,16 @@ st.markdown("""
     .stButton>button:hover { background-color: #00425c; color: white; }
     h1, h2, h3 { color: #004561; font-family: 'Arial', sans-serif; }
     .footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; color: #9e9e9e; font-size: 11px; padding-bottom: 10px; }
-    .logo-box { border: 2px dashed #005b7f; border-radius: 10px; padding: 20px; text-align: center; color: #005b7f; margin-bottom: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. DATOS Y ESTADO ---
+# --- 2. GESTIÓN DE ENLACES DE LOGOS ---
+# Sustituye estas URL por los enlaces reales de tus imágenes en GitHub
+URL_LOGO_1 = "https://via.placeholder.com/150?text=Institucion" # https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2092.PNG
+URL_LOGO_2 = "https://via.placeholder.com/150?text=Centro"      # Pon aquí tu link
+URL_LOGO_3 = "https://via.placeholder.com/150?text=Personal"    # https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG
+
+# --- 3. DATOS Y ESTADO ---
 DB_FILE = "datos_agvac.csv"
 if not os.path.exists(DB_FILE):
     pd.DataFrame(columns=["Fecha", "Vacuna", "Semana", "Mes", "Año"]).to_csv(DB_FILE, index=False)
@@ -38,48 +44,59 @@ if 'lista_vacunas' not in st.session_state:
         "COVID": "#E6E6FA"
     }
 
-# --- 3. PANEL DE CONFIGURACIÓN (CON CONTRASEÑA) ---
+# --- 4. PANEL DE CONFIGURACIÓN (CON CONTRASEÑA) ---
 with st.expander("⚙️ Configuración y Gestión (Requiere Contraseña)"):
-    pw = st.text_input("Introduce la contraseña para editar:", type="password")
+    pw = st.text_input("Contraseña:", type="password")
     if pw == "1234":
         st.success("Acceso concedido")
-        st.write("### 🖼️ Logos")
-        col_l1, col_l2, col_l3 = st.columns(3)
-        with col_l1: st.markdown('<div class="logo-box">Logo Institución</div>', unsafe_allow_html=True)
-        with col_l2: st.markdown('<div class="logo-box">Logo Centro</div>', unsafe_allow_html=True)
-        with col_l3: st.markdown('<div class="logo-box">Logo Personal</div>', unsafe_allow_html=True)
+        
+        st.write("### 🖼️ Previsualización de Logos")
+        col_ed1, col_ed2, col_ed3 = st.columns(3)
+        with col_ed1: st.image(URL_LOGO_1, caption="Logo Institución")
+        with col_ed2: st.image(URL_LOGO_2, caption="Logo Centro")
+        with col_ed3: st.image(URL_LOGO_3, caption="Logo Personal")
+        st.info("Para cambiar los logos, debes actualizar los enlaces en el código de GitHub.")
+        
         st.divider()
         st.write("### 🗑️ Eliminar último registro")
         try:
             df_temp = pd.read_csv(DB_FILE)
             if not df_temp.empty:
                 ultimo = df_temp.iloc[-1]
-                st.warning(f"Último registro: {ultimo['Vacuna']} ({ultimo['Fecha']})")
-                if st.button("Eliminar este registro"):
+                st.warning(f"Último: {ultimo['Vacuna']} ({ultimo['Fecha']})")
+                if st.button("Eliminar"):
                     df_temp = df_temp.drop(df_temp.index[-1])
                     df_temp.to_csv(DB_FILE, index=False)
                     st.rerun()
         except: pass
+
         st.divider()
-        st.write("### ➕ Añadir nueva vacuna a la lista")
+        st.write("### ➕ Nueva Vacuna")
         nv = st.text_input("Nombre:")
         nc = st.color_picker("Color:", "#005b7f")
-        if st.button("Guardar nueva"):
+        if st.button("Guardar"):
             if nv:
                 st.session_state.lista_vacunas[nv] = nc
                 st.success("Añadida")
     elif pw != "":
         st.error("Contraseña incorrecta")
 
-# --- 4. INTERFAZ PRINCIPAL ---
-st.markdown("<h1 style='text-align: center;'>AGVAC</h1>", unsafe_allow_html=True)
+# --- 5. CABECERA CON LOGOS VISIBLES ---
+# Esta sección muestra los logos arriba de la app
+col_logo1, col_logo2, col_title, col_logo3 = st.columns([1, 1, 3, 1])
+with col_logo1: st.image(URL_LOGO_1, width=80)
+with col_logo2: st.image(URL_LOGO_2, width=80)
+with col_title: st.markdown("<h1 style='text-align: center;'>AGVAC</h1>", unsafe_allow_html=True)
+with col_logo3: st.image(URL_LOGO_3, width=80)
+
 st.divider()
 
+# --- 6. BUSCADOR Y CAJITA ---
 col_search, col_box = st.columns([1, 1])
 with col_search:
-    st.subheader("🔍 Buscar y Añadir")
+    st.subheader("🔍 Buscar")
     seleccion = st.selectbox("Vacuna:", [""] + list(st.session_state.lista_vacunas.keys()))
-    if st.button("➕ Añadir a la cajita"):
+    if st.button("➕ Añadir"):
         if seleccion:
             st.session_state.cesta.append(seleccion)
             st.rerun()
@@ -89,67 +106,51 @@ with col_box:
     if st.session_state.cesta:
         for item in st.session_state.cesta:
             st.write(f"- {item}")
-        if st.button("✅ CONFIRMAR REGISTRO"):
+        if st.button("✅ CONFIRMAR"):
             df_hist = pd.read_csv(DB_FILE)
             ahora = datetime.now()
             for item in st.session_state.cesta:
                 nueva = {
-                    "Fecha": ahora.strftime("%Y-%m-%d %H:%M"),
-                    "Vacuna": item,
-                    "Semana": ahora.strftime("%U-%Y"),
-                    "Mes": ahora.strftime("%m-%Y"),
-                    "Año": ahora.strftime("%Y")
+                    "Fecha": ahora.strftime("%Y-%m-%d %H:%M"), "Vacuna": item,
+                    "Semana": ahora.strftime("%U-%Y"), "Mes": ahora.strftime("%m-%Y"), "Año": ahora.strftime("%Y")
                 }
                 df_hist = pd.concat([df_hist, pd.DataFrame([nueva])], ignore_index=True)
             df_hist.to_csv(DB_FILE, index=False)
             st.session_state.cesta = []
             st.rerun()
-        if st.button("🗑️ Vaciar cajita"):
+        if st.button("🗑️ Vaciar"):
             st.session_state.cesta = []
             st.rerun()
-    else:
-        st.info("No hay vacunas en espera")
+    else: st.info("Cajita vacía")
 
-# --- 5. GRÁFICAS DE TARTA (POR TIEMPO) ---
+# --- 7. GRÁFICAS ---
 st.divider()
-st.subheader("📊 Estadísticas (Gráficos de Tarta)")
-
+st.subheader("📊 Estadísticas (Tarta)")
 try:
     df = pd.read_csv(DB_FILE)
     if not df.empty:
         ahora = datetime.now()
-        sem_actual = ahora.strftime("%U-%Y")
-        mes_actual = ahora.strftime("%m-%Y")
-        año_actual = ahora.strftime("%Y")
-
         tab1, tab2, tab3 = st.tabs(["📅 Semanal", "📆 Mensual", "🗓️ Anual"])
-
+        
         with tab1:
-            df_sem = df[df['Semana'] == sem_actual]
-            if not df_sem.empty:
-                conteo_sem = df_sem['Vacuna'].value_counts().reset_index()
-                fig_sem = px.pie(conteo_sem, values='count', names='Vacuna', title="Semana Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
-                st.plotly_chart(fig_sem, use_container_width=True)
-            else: st.write("No hay datos esta semana.")
-
+            df_s = df[df['Semana'] == ahora.strftime("%U-%Y")]
+            if not df_s.empty:
+                st.plotly_chart(px.pie(df_s, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
+            else: st.write("Sin datos esta semana.")
+        
         with tab2:
-            df_mes = df[df['Mes'] == mes_actual]
-            if not df_mes.empty:
-                conteo_mes = df_mes['Vacuna'].value_counts().reset_index()
-                fig_mes = px.pie(conteo_mes, values='count', names='Vacuna', title="Mes Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
-                st.plotly_chart(fig_mes, use_container_width=True)
-            else: st.write("No hay datos este mes.")
+            df_m = df[df['Mes'] == ahora.strftime("%m-%Y")]
+            if not df_m.empty:
+                st.plotly_chart(px.pie(df_m, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
+            else: st.write("Sin datos este mes.")
 
         with tab3:
-            df_año = df[df['Año'] == año_actual]
-            if not df_año.empty:
-                conteo_año = df_año['Vacuna'].value_counts().reset_index()
-                fig_año = px.pie(conteo_año, values='count', names='Vacuna', title="Año Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
-                st.plotly_chart(fig_año, use_container_width=True)
-            else: st.write("No hay datos este año.")
+            df_a = df[df['Año'] == ahora.strftime("%Y")]
+            if not df_a.empty:
+                st.plotly_chart(px.pie(df_a, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
+            else: st.write("Sin datos este año.")
             
-        st.download_button("📥 Descargar CSV", df.to_csv(index=False).encode('utf-8'), "AGVAC_Data.csv", "text/csv")
-except Exception as e:
-    st.error(f"Error en gráficas: {e}")
+        st.download_button("📥 Descargar CSV", df.to_csv(index=False).encode('utf-8'), "AGVAC.csv", "text/csv")
+except: pass
 
-st.markdown('<div class="footer">MRGAGVAC2026.1.2</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">MRGAGVAC2026.1.3</div>', unsafe_allow_html=True)
