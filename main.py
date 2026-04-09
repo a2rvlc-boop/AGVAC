@@ -34,13 +34,17 @@ st.markdown("""
         text-align: center;
         color: #004561;
         font-family: 'Arial', sans-serif;
-        margin-bottom: 10px;
+        margin-bottom: 30px;
     }
-    .login-version {
+    /* Versión al final de la página de login */
+    .login-footer-version {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
         text-align: center;
         color: #9e9e9e;
         font-size: 12px;
-        margin-bottom: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -53,13 +57,12 @@ def login():
     # URL del logo principal de AGVAC
     URL_LOGO_LOGIN = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logo_agvac.png"
     
-    # Contenedor para el Logo Centrado y Grande
+    # Logo Centrado
     st.markdown(f'<div class="login-logo-container"><img src="{URL_LOGO_LOGIN}" width="180"></div>', unsafe_allow_html=True)
     
-    # Contenedor para el Formulario y Versión
+    # Formulario de Acceso
     st.markdown("<div class='login-form-container'>", unsafe_allow_html=True)
     st.markdown("<h2 class='login-title'>Acceso AGVAC</h2>", unsafe_allow_html=True)
-    st.markdown("<div class='login-version'>v MRGAGVAC20261.6.1</div>", unsafe_allow_html=True)
     
     usuario = st.text_input("Usuario", key="login_user")
     password = st.text_input("Contraseña", type="password", key="login_pass")
@@ -71,6 +74,9 @@ def login():
         else:
             st.error("Usuario o contraseña incorrectos")
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # Versión centrada abajo del todo
+    st.markdown("<div class='login-footer-version'>MRGAGVAC2026.1.6.1</div>", unsafe_allow_html=True)
 
 if not st.session_state.autenticado:
     login()
@@ -195,5 +201,5 @@ with tab_conf:
             st.success("Añadida.")
             st.rerun()
 
-# --- 6. PIE DE PÁGINA ---
-st.markdown('<div class="footer">MRGAGVAC20261.6.1 | Sistema Privado AGVAC</div>', unsafe_allow_html=True)
+# --- 6. PIE DE PÁGINA (DENTRO DE LA APP) ---
+st.markdown('<div class="footer">MRGAGVAC2026.1.6.1 | Sistema Privado AGVAC</div>', unsafe_allow_html=True)
