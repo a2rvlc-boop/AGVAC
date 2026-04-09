@@ -254,4 +254,4 @@ with tab_conf:
             st.markdown(f'<span style="color:{color}; font-weight:bold;">■</span> {vac}', unsafe_allow_html=True)
 
 # --- 6. PIE DE PÁGINA (FOOTER) ---
-st.markdown('<div class="footer">MRGAGVAC2026.1.0 | Sistema Privado AGVAC</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">MRGAGVAC2026.1.6.1', unsafe_allow_html=True)
