@@ -23,7 +23,7 @@ st.markdown("""
 # --- 2. ENLACES DE LOS DOS LOGOS LATERALES ---
 # Sustituye estas URL por tus enlaces RAW de GitHub
 URL_LOGO_IZQ = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG"
-URL_LOGO_DER = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2092.PNG"
+URL_LOGO_DER = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logo_agvac.png"
 
 # --- 3. DATOS Y ESTADO ---
 DB_FILE = "datos_agvac.csv"
