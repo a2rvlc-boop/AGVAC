@@ -15,14 +15,15 @@ st.markdown("""
     .stButton>button:hover { background-color: #00425c; color: white; }
     h1, h2, h3 { color: #004561; font-family: 'Arial', sans-serif; }
     .footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; color: #9e9e9e; font-size: 11px; padding-bottom: 10px; }
+    /* Estilo para centrar verticalmente el título con los logos */
+    .titulo-container { display: flex; align-items: center; justify-content: center; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. GESTIÓN DE ENLACES DE LOGOS ---
-# Sustituye estas URL por los enlaces reales de tus imágenes en GitHub
-URL_LOGO_1 = "https://via.placeholder.com/150?text=Institucion" #https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2092.PNG
-URL_LOGO_2 = "https://via.placeholder.com/150?text=Centro"      # Pon aquí tu link
-URL_LOGO_3 = "https://via.placeholder.com/150?text=Personal"    #https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG
+# --- 2. ENLACES DE LOS DOS LOGOS LATERALES ---
+# Sustituye estas URL por tus enlaces RAW de GitHub
+URL_LOGO_IZQ = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/logo1.png"
+URL_LOGO_DER = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/logo2.png"
 
 # --- 3. DATOS Y ESTADO ---
 DB_FILE = "datos_agvac.csv"
@@ -44,69 +45,67 @@ if 'lista_vacunas' not in st.session_state:
         "COVID": "#E6E6FA"
     }
 
-# --- 4. PANEL DE CONFIGURACIÓN (CON CONTRASEÑA) ---
-with st.expander("⚙️ Configuración y Gestión (Requiere Contraseña)"):
+# --- 4. PANEL DE CONFIGURACIÓN (SIN EDICIÓN DE LOGOS) ---
+with st.expander("⚙️ Gestión de Registros y Vacunas (Contraseña: 1234)"):
     pw = st.text_input("Contraseña:", type="password")
     if pw == "1234":
         st.success("Acceso concedido")
         
-        st.write("### 🖼️ Previsualización de Logos")
-        col_ed1, col_ed2, col_ed3 = st.columns(3)
-        with col_ed1: st.image(URL_LOGO_1, caption="Logo Institución")
-        with col_ed2: st.image(URL_LOGO_2, caption="Logo Centro")
-        with col_ed3: st.image(URL_LOGO_3, caption="Logo Personal")
-        st.info("Para cambiar los logos, debes actualizar los enlaces en el código de GitHub.")
-        
-        st.divider()
         st.write("### 🗑️ Eliminar último registro")
         try:
             df_temp = pd.read_csv(DB_FILE)
             if not df_temp.empty:
                 ultimo = df_temp.iloc[-1]
-                st.warning(f"Último: {ultimo['Vacuna']} ({ultimo['Fecha']})")
-                if st.button("Eliminar"):
+                st.warning(f"Último registro guardado: {ultimo['Vacuna']} ({ultimo['Fecha']})")
+                if st.button("Eliminar este registro"):
                     df_temp = df_temp.drop(df_temp.index[-1])
                     df_temp.to_csv(DB_FILE, index=False)
                     st.rerun()
         except: pass
 
         st.divider()
-        st.write("### ➕ Nueva Vacuna")
-        nv = st.text_input("Nombre:")
-        nc = st.color_picker("Color:", "#005b7f")
-        if st.button("Guardar"):
+        st.write("### ➕ Añadir nueva vacuna a la lista")
+        nv = st.text_input("Nombre de la vacuna:")
+        nc = st.color_picker("Color asignado:", "#005b7f")
+        if st.button("Guardar nueva vacuna"):
             if nv:
                 st.session_state.lista_vacunas[nv] = nc
-                st.success("Añadida")
+                st.success(f"{nv} añadida a la lista.")
     elif pw != "":
         st.error("Contraseña incorrecta")
 
-# --- 5. CABECERA CON LOGOS VISIBLES ---
-# Esta sección muestra los logos arriba de la app
-col_logo1, col_logo2, col_title, col_logo3 = st.columns([1, 1, 3, 1])
-with col_logo1: st.image(URL_LOGO_1, width=80)
-with col_logo2: st.image(URL_LOGO_2, width=80)
-with col_title: st.markdown("<h1 style='text-align: center;'>AGVAC</h1>", unsafe_allow_html=True)
-with col_logo3: st.image(URL_LOGO_3, width=80)
+# --- 5. CABECERA: DOS LOGOS LATERALES Y TÍTULO CENTRADO ---
+st.write("") # Espacio superior
+col_izq, col_centro, col_der = st.columns([1, 4, 1])
+
+with col_izq:
+    st.image(URL_LOGO_IZQ, use_container_width=True)
+
+with col_centro:
+    # Ajustamos el título para que se vea grande y centrado
+    st.markdown("<h1 style='text-align: center; font-size: 60px; margin-top: 0px;'>AGVAC</h1>", unsafe_allow_html=True)
+
+with col_der:
+    st.image(URL_LOGO_DER, use_container_width=True)
 
 st.divider()
 
 # --- 6. BUSCADOR Y CAJITA ---
 col_search, col_box = st.columns([1, 1])
 with col_search:
-    st.subheader("🔍 Buscar")
-    seleccion = st.selectbox("Vacuna:", [""] + list(st.session_state.lista_vacunas.keys()))
-    if st.button("➕ Añadir"):
+    st.subheader("🔍 Registro de Vacuna")
+    seleccion = st.selectbox("Seleccionar:", [""] + list(st.session_state.lista_vacunas.keys()))
+    if st.button("➕ Añadir a la lista temporal"):
         if seleccion:
             st.session_state.cesta.append(seleccion)
             st.rerun()
 
 with col_box:
-    st.subheader("📦 Cajita")
+    st.subheader("📦 Confirmación")
     if st.session_state.cesta:
         for item in st.session_state.cesta:
             st.write(f"- {item}")
-        if st.button("✅ CONFIRMAR"):
+        if st.button("✅ GUARDAR TODO"):
             df_hist = pd.read_csv(DB_FILE)
             ahora = datetime.now()
             for item in st.session_state.cesta:
@@ -118,39 +117,39 @@ with col_box:
             df_hist.to_csv(DB_FILE, index=False)
             st.session_state.cesta = []
             st.rerun()
-        if st.button("🗑️ Vaciar"):
+        if st.button("🗑️ Vaciar lista"):
             st.session_state.cesta = []
             st.rerun()
-    else: st.info("Cajita vacía")
+    else: st.info("No hay vacunas seleccionadas")
 
 # --- 7. GRÁFICAS ---
 st.divider()
-st.subheader("📊 Estadísticas (Tarta)")
+st.subheader("📊 Resumen de Actividad")
 try:
     df = pd.read_csv(DB_FILE)
     if not df.empty:
         ahora = datetime.now()
-        tab1, tab2, tab3 = st.tabs(["📅 Semanal", "📆 Mensual", "🗓️ Anual"])
+        tab1, tab2, tab3 = st.tabs(["📅 Esta Semana", "📆 Este Mes", "🗓️ Este Año"])
         
         with tab1:
             df_s = df[df['Semana'] == ahora.strftime("%U-%Y")]
             if not df_s.empty:
-                st.plotly_chart(px.pie(df_s, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
-            else: st.write("Sin datos esta semana.")
+                st.plotly_chart(px.pie(df_s, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+            else: st.write("Aún no hay registros esta semana.")
         
         with tab2:
             df_m = df[df['Mes'] == ahora.strftime("%m-%Y")]
             if not df_m.empty:
-                st.plotly_chart(px.pie(df_m, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
-            else: st.write("Sin datos este mes.")
+                st.plotly_chart(px.pie(df_m, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+            else: st.write("Aún no hay registros este mes.")
 
         with tab3:
             df_a = df[df['Año'] == ahora.strftime("%Y")]
             if not df_a.empty:
-                st.plotly_chart(px.pie(df_a, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3), use_container_width=True)
-            else: st.write("Sin datos este año.")
+                st.plotly_chart(px.pie(df_a, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+            else: st.write("Aún no hay registros este año.")
             
-        st.download_button("📥 Descargar CSV", df.to_csv(index=False).encode('utf-8'), "AGVAC.csv", "text/csv")
+        st.download_button("📥 Descargar histórico completo (CSV)", df.to_csv(index=False).encode('utf-8'), "AGVAC_Historial.csv", "text/csv")
 except: pass
 
-st.markdown('<div class="footer">MRGAGVAC2026.1.3</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">MRGAGVAC2026.1.0</div>', unsafe_allow_html=True)
