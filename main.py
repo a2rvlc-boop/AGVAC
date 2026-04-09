@@ -154,4 +154,4 @@ try:
         st.download_button("📥 Descargar histórico completo (CSV)", df.to_csv(index=False).encode('utf-8'), "AGVAC_Historial.csv", "text/csv")
 except: pass
 
-st.markdown('<div class="footer">MRGAGVAC2026.1.0</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">MRGAGVAC2026.1.5</div>', unsafe_allow_html=True)
