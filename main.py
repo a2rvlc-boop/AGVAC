@@ -15,13 +15,11 @@ st.markdown("""
     .stButton>button:hover { background-color: #00425c; color: white; }
     h1, h2, h3 { color: #004561; font-family: 'Arial', sans-serif; }
     .footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; color: #9e9e9e; font-size: 11px; padding-bottom: 10px; }
-    /* Estilo para centrar verticalmente el título con los logos */
     .titulo-container { display: flex; align-items: center; justify-content: center; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 2. ENLACES DE LOS DOS LOGOS LATERALES ---
-# Sustituye estas URL por tus enlaces RAW de GitHub
 URL_LOGO_IZQ = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG"
 URL_LOGO_DER = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logo_agvac.png"
 
@@ -45,12 +43,11 @@ if 'lista_vacunas' not in st.session_state:
         "COVID": "#E6E6FA"
     }
 
-# --- 4. PANEL DE CONFIGURACIÓN (SIN EDICIÓN DE LOGOS) ---
+# --- 4. PANEL DE CONFIGURACIÓN ---
 with st.expander("⚙️ Gestión de Registros y Vacunas"):
     pw = st.text_input("Contraseña:", type="password")
     if pw == "1234":
         st.success("Acceso concedido")
-        
         st.write("### 🗑️ Eliminar último registro")
         try:
             df_temp = pd.read_csv(DB_FILE)
@@ -75,19 +72,11 @@ with st.expander("⚙️ Gestión de Registros y Vacunas"):
         st.error("Contraseña incorrecta")
 
 # --- 5. CABECERA: DOS LOGOS LATERALES Y TÍTULO CENTRADO ---
-st.write("") # Espacio superior
+st.write("") 
 col_izq, col_centro, col_der = st.columns([1, 4, 1])
-
-with col_izq:
-    st.image(URL_LOGO_IZQ, use_container_width=True)
-
-with col_centro:
-    # Ajustamos el título para que se vea grande y centrado
-    st.markdown("<h1 style='text-align: center; font-size: 60px; margin-top: 0px;'>AGVAC</h1>", unsafe_allow_html=True)
-
-with col_der:
-    st.image(URL_LOGO_DER, use_container_width=True)
-
+with col_izq: st.image(URL_LOGO_IZQ, use_container_width=True)
+with col_centro: st.markdown("<h1 style='text-align: center; font-size: 60px; margin-top: 0px;'>AGVAC</h1>", unsafe_allow_html=True)
+with col_der: st.image(URL_LOGO_DER, use_container_width=True)
 st.divider()
 
 # --- 6. BUSCADOR Y CAJITA ---
@@ -122,7 +111,7 @@ with col_box:
             st.rerun()
     else: st.info("No hay vacunas seleccionadas")
 
-# --- 7. GRÁFICAS ---
+# --- 7. GRÁFICAS (CON CANTIDAD + PORCENTAJE) ---
 st.divider()
 st.subheader("📊 Resumen de Actividad")
 try:
@@ -134,19 +123,32 @@ try:
         with tab1:
             df_s = df[df['Semana'] == ahora.strftime("%U-%Y")]
             if not df_s.empty:
-                st.plotly_chart(px.pie(df_s, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+                # Contamos las ocurrencias
+                conteo_s = df_s['Vacuna'].value_counts().reset_index()
+                fig_s = px.pie(conteo_s, values='count', names='Vacuna', color='Vacuna', 
+                               color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
+                fig_s.update_traces(textinfo='value+percent') # Muestra número y %
+                st.plotly_chart(fig_s, use_container_width=True)
             else: st.write("Aún no hay registros esta semana.")
         
         with tab2:
             df_m = df[df['Mes'] == ahora.strftime("%m-%Y")]
             if not df_m.empty:
-                st.plotly_chart(px.pie(df_m, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+                conteo_m = df_m['Vacuna'].value_counts().reset_index()
+                fig_m = px.pie(conteo_m, values='count', names='Vacuna', color='Vacuna', 
+                               color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
+                fig_m.update_traces(textinfo='value+percent')
+                st.plotly_chart(fig_m, use_container_width=True)
             else: st.write("Aún no hay registros este mes.")
 
         with tab3:
             df_a = df[df['Año'] == ahora.strftime("%Y")]
             if not df_a.empty:
-                st.plotly_chart(px.pie(df_a, names='Vacuna', color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.4), use_container_width=True)
+                conteo_a = df_a['Vacuna'].value_counts().reset_index()
+                fig_a = px.pie(conteo_a, values='count', names='Vacuna', color='Vacuna', 
+                               color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
+                fig_a.update_traces(textinfo='value+percent')
+                st.plotly_chart(fig_a, use_container_width=True)
             else: st.write("Aún no hay registros este año.")
             
         st.download_button("📥 Descargar histórico completo (CSV)", df.to_csv(index=False).encode('utf-8'), "AGVAC_Historial.csv", "text/csv")
