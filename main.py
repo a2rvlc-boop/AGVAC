@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 
 # --- 1. CONFIGURACIÓN ---
@@ -43,30 +43,24 @@ with st.expander("⚙️ Configuración y Gestión (Requiere Contraseña)"):
     pw = st.text_input("Introduce la contraseña para editar:", type="password")
     if pw == "1234":
         st.success("Acceso concedido")
-        
-        # Gestión de Logos
         st.write("### 🖼️ Logos")
         col_l1, col_l2, col_l3 = st.columns(3)
         with col_l1: st.markdown('<div class="logo-box">Logo Institución</div>', unsafe_allow_html=True)
         with col_l2: st.markdown('<div class="logo-box">Logo Centro</div>', unsafe_allow_html=True)
         with col_l3: st.markdown('<div class="logo-box">Logo Personal</div>', unsafe_allow_html=True)
-        
         st.divider()
-        
-        # Eliminar registros
         st.write("### 🗑️ Eliminar último registro")
-        df_temp = pd.read_csv(DB_FILE)
-        if not df_temp.empty:
-            ultimo = df_temp.iloc[-1]
-            st.warning(f"Último registro: {ultimo['Vacuna']} ({ultimo['Fecha']})")
-            if st.button("Eliminar este registro"):
-                df_temp = df_temp.drop(df_temp.index[-1])
-                df_temp.to_csv(DB_FILE, index=False)
-                st.rerun()
-        
+        try:
+            df_temp = pd.read_csv(DB_FILE)
+            if not df_temp.empty:
+                ultimo = df_temp.iloc[-1]
+                st.warning(f"Último registro: {ultimo['Vacuna']} ({ultimo['Fecha']})")
+                if st.button("Eliminar este registro"):
+                    df_temp = df_temp.drop(df_temp.index[-1])
+                    df_temp.to_csv(DB_FILE, index=False)
+                    st.rerun()
+        except: pass
         st.divider()
-        
-        # Añadir vacunas
         st.write("### ➕ Añadir nueva vacuna a la lista")
         nv = st.text_input("Nombre:")
         nc = st.color_picker("Color:", "#005b7f")
@@ -133,18 +127,29 @@ try:
         with tab1:
             df_sem = df[df['Semana'] == sem_actual]
             if not df_sem.empty:
-                fig_sem = px.pie(df_sem, names='Vacuna', title=f"Semana Actual ({sem_actual})", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
+                conteo_sem = df_sem['Vacuna'].value_counts().reset_index()
+                fig_sem = px.pie(conteo_sem, values='count', names='Vacuna', title="Semana Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
                 st.plotly_chart(fig_sem, use_container_width=True)
             else: st.write("No hay datos esta semana.")
 
         with tab2:
             df_mes = df[df['Mes'] == mes_actual]
             if not df_mes.empty:
-                fig_mes = px.pie(df_mes, names='Vacuna', title=f"Mes Actual ({mes_actual})", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
+                conteo_mes = df_mes['Vacuna'].value_counts().reset_index()
+                fig_mes = px.pie(conteo_mes, values='count', names='Vacuna', title="Mes Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
                 st.plotly_chart(fig_mes, use_container_width=True)
             else: st.write("No hay datos este mes.")
 
         with tab3:
             df_año = df[df['Año'] == año_actual]
             if not df_año.empty:
-                fig_año = px.pie(
+                conteo_año = df_año['Vacuna'].value_counts().reset_index()
+                fig_año = px.pie(conteo_año, values='count', names='Vacuna', title="Año Actual", color='Vacuna', color_discrete_map=st.session_state.lista_vacunas, hole=0.3)
+                st.plotly_chart(fig_año, use_container_width=True)
+            else: st.write("No hay datos este año.")
+            
+        st.download_button("📥 Descargar CSV", df.to_csv(index=False).encode('utf-8'), "AGVAC_Data.csv", "text/csv")
+except Exception as e:
+    st.error(f"Error en gráficas: {e}")
+
+st.markdown('<div class="footer">MRGAGVAC2026.1.2</div>', unsafe_allow_html=True)
