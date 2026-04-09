@@ -69,7 +69,7 @@ with st.expander("⚙️ Gestión de Registros y Vacunas"):
         if st.button("Guardar nueva vacuna"):
             if nv:
                 st.session_state.lista_vacunas[nv] = nc
-                st.success(f"{nv} añadida a la lista.")
+                st.success(f"{nv} añadida.")
     elif pw != "":
         st.error("Contraseña incorrecta")
 
@@ -119,14 +119,13 @@ with col_box:
             st.rerun()
     else: st.info("No hay vacunas seleccionadas")
 
-# --- 7. GRÁFICAS (SEMANA, MES, AÑO) ---
+# --- 7. GRÁFICAS (CON KEY ÚNICO PARA EVITAR ERRORES) ---
 st.divider()
 st.subheader("📊 Resumen de Actividad")
 
 try:
     df = pd.read_csv(DB_FILE)
     if not df.empty:
-        # Asegurar formato texto para comparar sin errores
         df['Semana'] = df['Semana'].astype(str)
         df['Mes'] = df['Mes'].astype(str)
         df['Año'] = df['Año'].astype(str)
@@ -145,8 +144,8 @@ try:
                 fig_s = px.pie(conteo_s, values='count', names='Vacuna', color='Vacuna', 
                                color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
                 fig_s.update_traces(textinfo='value+percent')
-                st.plotly_chart(fig_s, use_container_width=True)
-            else: st.info(f"Sin registros en la semana actual ({sem_act})")
+                st.plotly_chart(fig_s, use_container_width=True, key="grafica_semanal")
+            else: st.info(f"Sin registros en la semana {sem_act}")
         
         with tab2:
             df_m = df[df['Mes'] == mes_act]
@@ -155,8 +154,8 @@ try:
                 fig_m = px.pie(conteo_m, values='count', names='Vacuna', color='Vacuna', 
                                color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
                 fig_m.update_traces(textinfo='value+percent')
-                st.plotly_chart(fig_m, use_container_width=True)
-            else: st.info(f"Sin registros en el mes actual ({mes_act})")
+                st.plotly_chart(fig_m, use_container_width=True, key="grafica_mensual")
+            else: st.info(f"Sin registros en el mes {mes_act}")
 
         with tab3:
             df_a = df[df['Año'] == año_act]
@@ -165,10 +164,10 @@ try:
                 fig_a = px.pie(conteo_a, values='count', names='Vacuna', color='Vacuna', 
                                color_discrete_map=st.session_state.lista_vacunas, hole=0.4)
                 fig_a.update_traces(textinfo='value+percent')
-                st.plotly_chart(fig_a, use_container_width=True)
-            else: st.info(f"Sin registros en el año actual ({año_act})")
+                st.plotly_chart(fig_a, use_container_width=True, key="grafica_anual")
+            else: st.info(f"Sin registros en el año {año_act}")
             
-        st.download_button("📥 Descargar CSV", df.to_csv(index=False).encode('utf-8'), "AGVAC_Historial.csv", "text/csv")
+        st.download_button("📥 Descargar histórico completo (CSV)", df.to_csv(index=False).encode('utf-8'), "AGVAC_Historial.csv", "text/csv")
     else:
         st.warning("Base de datos vacía. Registra una vacuna para activar las gráficas.")
 except Exception as e:
