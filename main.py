@@ -20,9 +20,9 @@ st.markdown("""
 
 # --- 2. GESTIÓN DE ENLACES DE LOGOS ---
 # Sustituye estas URL por los enlaces reales de tus imágenes en GitHub
-URL_LOGO_1 = "https://via.placeholder.com/150?text=Institucion" # https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2092.PNG
+URL_LOGO_1 = "https://via.placeholder.com/150?text=Institucion" #https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2092.PNG
 URL_LOGO_2 = "https://via.placeholder.com/150?text=Centro"      # Pon aquí tu link
-URL_LOGO_3 = "https://via.placeholder.com/150?text=Personal"    # https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG
+URL_LOGO_3 = "https://via.placeholder.com/150?text=Personal"    #https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG
 
 # --- 3. DATOS Y ESTADO ---
 DB_FILE = "datos_agvac.csv"
