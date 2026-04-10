@@ -69,7 +69,7 @@ def login():
             st.session_state.autenticado = True
             st.rerun()
         else: st.error("Error de credenciales")
-    st.markdown("<div class='login-footer-version'>MRGAGVAC2026.1.6.1</div>", unsafe_allow_html=True)
+    st.markdown("<div class='login-footer-version'>MRGAGVAC2026.1.7 | AGVAC</div>", unsafe_allow_html=True)
 
 if not st.session_state.autenticado:
     login()
@@ -191,13 +191,16 @@ with tab_conf:
     with col_st2:
         st.write("### Añadir Nueva Vacuna al Sistema")
         n_v = st.text_input("Nombre de la vacuna:")
+        n_color = st.color_picker("Color para gráficas:", "#005b7f")
         n_m = st.number_input("Mínimo crítico para alerta:", value=5)
         if st.button("Registrar en Catálogo"):
             if n_v:
                 nueva_v = pd.DataFrame([{"Vacuna": n_v, "Cantidad": 25, "Minimo": n_m}])
                 df_st = pd.concat([df_st, nueva_v], ignore_index=True)
                 df_st.to_csv(STOCK_FILE, index=False)
-                st.session_state.lista_vacunas[n_v] = "#005b7f" # Color por defecto
+                # Guardar el color en el diccionario de sesión
+                st.session_state.lista_vacunas[n_v] = n_color
+                st.success(f"{n_v} añadida con éxito.")
                 st.rerun()
                 
     st.divider()
@@ -210,4 +213,4 @@ with tab_conf:
             del st.session_state.lista_vacunas[v_borrar]
         st.rerun()
 
-st.markdown('<div class="footer">MRGAGVAC2026.1.6.1 | Sistema Privado AGVAC</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">MRGAGVAC2026.1.7 | Sistema Privado AGVAC</div>', unsafe_allow_html=True)
