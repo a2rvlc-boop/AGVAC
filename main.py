@@ -59,7 +59,7 @@ if not os.path.exists(STOCK_FILE):
 if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 def login():
-    URL_LOGO_LOGIN = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logomrg.png"
+    URL_LOGO_LOGIN = "https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logo_agvac.png"
     st.markdown(f'<div style="text-align:center; margin-top:50px;"><img src="{URL_LOGO_LOGIN}" width="180"></div>', unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:center;'>Acceso AGVAC</h2>", unsafe_allow_html=True)
     usuario = st.text_input("Usuario")
