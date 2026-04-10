@@ -93,7 +93,7 @@ if not alertas.empty:
 
 # Cabecera
 col_izq, col_centro, col_der = st.columns([1, 4, 1])
-with col_izq: st.image("https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/IMG_2098.PNG")
+with col_izq: st.image("https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logomrg.png")
 with col_centro: st.markdown("<h1 style='text-align: center; font-size: 50px;'>AGVAC</h1>", unsafe_allow_html=True)
 with col_der: st.image("https://raw.githubusercontent.com/a2rvlc-boop/AGVAC/refs/heads/main/logo_agvac.png")
 
